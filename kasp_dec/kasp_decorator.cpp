@@ -4,18 +4,28 @@
 kasp::decorator::decorator(kasp::db_interface *db, const int get_timeout, const int db_timeout)
     : m_timeout(get_timeout),
       m_db(db),
-      m_timer(new kasp::timer())
+      m_timer(kasp::timer())
 {
     std::cout << __FUNCTION__ << std::endl;
-    m_timer->set_timeout(
+    m_timer.set_timeout(
                 [this]()
                 {
+                    std::cout << "Copy cache to database ..." << std::endl;
+                    int rec_count = 0;
                     auto it = m_cache->begin();
                     while(it != m_cache->end())
                     {
-                        \
+                        it->second->m_event->reset();
+                        std::string db_data = m_db->get(it->first);
+                        if(it->second->m_record->data.compare(db_data))
+                        {
+                            m_db->put(it->first, it->second->m_record->data);
+                            ++rec_count;
+                        }
+                        it->second->m_event->signal();
                         ++it;
                     }
+                    std::cout << "Copy is success! Saved " << rec_count << " records" << std::endl;
                 },
                 db_timeout);
 }
