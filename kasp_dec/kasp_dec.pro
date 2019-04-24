@@ -4,8 +4,8 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 
-#INCLUDEPATH += C:\boost\boost_1_69_0
-#LIBS += "-LC:\boost\boost_1_69_0\lib64-msvc-14.1"
+INCLUDEPATH += C:\boost\boost_1_69_0
+LIBS += "-LC:\boost\boost_1_69_0\lib32-msvc-14.1"
 
 SOURCES += \
         kasp_db_mock.cpp \

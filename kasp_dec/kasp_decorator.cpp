@@ -32,13 +32,13 @@ kasp::decorator::decorator(kasp::db_interface *db, const int get_timeout, const 
 
 kasp::decorator::~decorator()
 {
-    std::cout << __FUNCTION__ << std::endl;
+    //std::cout << __FUNCTION__ << std::endl;
     m_cache->clear();
 }
 
 std::string kasp::decorator::get(const std::string &key)
 {
-    std::cout << __FUNCTION__ << ": key = " << key.c_str() << std::endl;
+    //std::cout << __FUNCTION__ << ": key = " << key.c_str() << std::endl;
     auto search = m_cache->find(key);
     if (search != m_cache->end())
     {
@@ -54,7 +54,7 @@ std::string kasp::decorator::get(const std::string &key)
             m_db->put(key, search->second->m_record->data);
         }
 
-        std::cout << __FUNCTION__ << ": data = " << search->second->m_record->data.c_str() << std::endl;
+        //std::cout << __FUNCTION__ << ": data = " << search->second->m_record->data.c_str() << std::endl;
         search->second->m_event->signal();
         return search->second->m_record->data;
     }
@@ -72,7 +72,7 @@ std::string kasp::decorator::get(const std::string &key)
 
 void kasp::decorator::put(const std::string &key, const std::string &data)
 {
-    std::cout << __FUNCTION__ << ": key = " << key.c_str() << "\tdata = " << data.c_str() << std::endl;
+    //std::cout << __FUNCTION__ << ": key = " << key.c_str() << "\tdata = " << data.c_str() << std::endl;
     auto temp_rec = std::unique_ptr<kasp::records_event>(new kasp::records_event());
     temp_rec->m_event = std::unique_ptr<kasp::event>(new kasp::event());
     temp_rec->m_record = std::unique_ptr<kasp::records>(new kasp::records());
@@ -85,7 +85,7 @@ void kasp::decorator::put(const std::string &key, const std::string &data)
 
 void kasp::decorator::remove(const std::string &key)
 {
-    std::cout << __FUNCTION__ << ": key = " << key.c_str() << std::endl;
+    //std::cout << __FUNCTION__ << ": key = " << key.c_str() << std::endl;
     auto search = m_cache->find(key);
     if (search != m_cache->end())
         m_cache->erase(search);
