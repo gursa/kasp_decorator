@@ -20,7 +20,7 @@ public:
 private:
     const int m_timeout;
     std::shared_ptr<db_interface> m_db;
-    kasp::timer m_timer;
+    std::unique_ptr<kasp::timer> m_timer;
     sf::safe_ptr<std::map<std::string, std::unique_ptr<kasp::records_event>>> m_cache;
 };
 

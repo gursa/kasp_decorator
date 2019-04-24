@@ -4,10 +4,10 @@
 kasp::decorator::decorator(kasp::db_interface *db, const int get_timeout, const int db_timeout)
     : m_timeout(get_timeout),
       m_db(db),
-      m_timer(kasp::timer())
+      m_timer(new kasp::timer())
 {
     std::cout << __FUNCTION__ << std::endl;
-    m_timer.set_timeout(
+    m_timer->set_timeout(
                 [this]()
                 {
                     std::cout << "Copy cache to database ..." << std::endl;
@@ -44,7 +44,7 @@ std::string kasp::decorator::get(const std::string &key)
     {
         auto timeout_result = search->second->m_event->wait(std::chrono::seconds(m_timeout));
         if(!timeout_result)
-            throw std::runtime_error("we have timeout");
+            throw std::runtime_error("kasp::decorator:get: timeout!!!");
 
         search->second->m_event->reset();
 
