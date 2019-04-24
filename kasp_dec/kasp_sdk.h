@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <memory>
+#include "kasp_event.h"
 
 namespace kasp
 {
@@ -11,7 +13,11 @@ struct records
     std::string data;
 };
 
-
+struct records_event
+{
+    std::unique_ptr<kasp::records> m_record;
+    std::unique_ptr<kasp::event> m_event;
+};
 
 class db_interface
 {

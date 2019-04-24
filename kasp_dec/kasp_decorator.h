@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "kasp_sdk.h"
+#include "kasp_event.h"
 #include "../object_threadsafe/safe_ptr.h"
 
 namespace kasp
@@ -17,7 +18,7 @@ public:
     virtual void remove(const std::string& key);
 private:
     std::shared_ptr<db_interface> m_db;
-    sf::safe_ptr<std::map<std::string, std::string>> m_cache;
+    sf::safe_ptr<std::map<std::string, std::unique_ptr<kasp::records_event>>> m_cache;
 };
 
 }

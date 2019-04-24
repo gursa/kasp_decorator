@@ -19,13 +19,21 @@ std::string kasp::decorator::get(const std::string &key)
     auto search = m_cache->find(key);
     if (search != m_cache->end())
     {
-        std::string data = search->second;
+        auto timeout_result = search->second->m_event->wait(std::chrono::seconds(10));//temp_event.wait(std::chrono::seconds(10));
+        if(!timeout_result)
+            throw std::runtime_error("we have timeout");
+
+        search->second->m_event->reset();
+
         std::string db_data = m_db->get(key);
         if(db_data.empty())
-            m_db->put(key, data);
+        {
+            m_db->put(key, search->second->m_record->data);
+        }
 
-        std::cout << __FUNCTION__ << ": data = " << data.c_str() << std::endl;
-        return data;
+        std::cout << __FUNCTION__ << ": data = " << search->second->m_record->data.c_str() << std::endl;
+        search->second->m_event->signal();
+        return search->second->m_record->data;
     }
 
     std::string db_data = m_db->get(key);
@@ -34,14 +42,20 @@ std::string kasp::decorator::get(const std::string &key)
         std::cerr << __FUNCTION__ << ": could not find key " << key.c_str() << std::endl;
         return std::string();
     }
-    m_cache->insert(std::pair<std::string, std::string>(key, db_data));
+
+    this->put(key, db_data);
     return db_data;
 }
 
 void kasp::decorator::put(const std::string &key, const std::string &data)
 {
     std::cout << __FUNCTION__ << ": key = " << key.c_str() << "\tdata = " << data.c_str() << std::endl;
-    m_cache->insert(std::pair<std::string, std::string>(key, data));
+    auto temp_rec = std::unique_ptr<kasp::records_event>(new kasp::records_event());
+    temp_rec->m_event->reset();
+    temp_rec->m_record->key = key;
+    temp_rec->m_record->data = data;
+    temp_rec->m_event->signal();
+    m_cache->insert(std::make_pair(key, std::move(temp_rec)));
 }
 
 void kasp::decorator::remove(const std::string &key)

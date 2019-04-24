@@ -10,10 +10,12 @@ CONFIG -= qt
 SOURCES += \
         kasp_db_mock.cpp \
         main.cpp \
-    kasp_decorator.cpp
+    kasp_decorator.cpp \
+    kasp_event.cpp
 
 HEADERS += \
     kasp_db_mock.h \
     kasp_sdk.h \
     ../object_threadsafe/safe_ptr.h \
-    kasp_decorator.h
+    kasp_decorator.h \
+    kasp_event.h
