@@ -1,10 +1,23 @@
 #include <utility>
 #include "kasp_decorator.h"
 
-kasp::decorator::decorator(kasp::db_interface *db)
-    : m_db(db)
+kasp::decorator::decorator(kasp::db_interface *db, const int get_timeout, const int db_timeout)
+    : m_timeout(get_timeout),
+      m_db(db),
+      m_timer(new kasp::timer())
 {
     std::cout << __FUNCTION__ << std::endl;
+    m_timer->set_timeout(
+                [this]()
+                {
+                    auto it = m_cache->begin();
+                    while(it != m_cache->end())
+                    {
+                        \
+                        ++it;
+                    }
+                },
+                db_timeout);
 }
 
 kasp::decorator::~decorator()
@@ -19,7 +32,7 @@ std::string kasp::decorator::get(const std::string &key)
     auto search = m_cache->find(key);
     if (search != m_cache->end())
     {
-        auto timeout_result = search->second->m_event->wait(std::chrono::seconds(10));//temp_event.wait(std::chrono::seconds(10));
+        auto timeout_result = search->second->m_event->wait(std::chrono::seconds(m_timeout));
         if(!timeout_result)
             throw std::runtime_error("we have timeout");
 
@@ -51,6 +64,8 @@ void kasp::decorator::put(const std::string &key, const std::string &data)
 {
     std::cout << __FUNCTION__ << ": key = " << key.c_str() << "\tdata = " << data.c_str() << std::endl;
     auto temp_rec = std::unique_ptr<kasp::records_event>(new kasp::records_event());
+    temp_rec->m_event = std::unique_ptr<kasp::event>(new kasp::event());
+    temp_rec->m_record = std::unique_ptr<kasp::records>(new kasp::records());
     temp_rec->m_event->reset();
     temp_rec->m_record->key = key;
     temp_rec->m_record->data = data;

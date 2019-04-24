@@ -18,4 +18,5 @@ HEADERS += \
     kasp_sdk.h \
     ../object_threadsafe/safe_ptr.h \
     kasp_decorator.h \
-    kasp_event.h
+    kasp_event.h \
+    kasp_timer.h
