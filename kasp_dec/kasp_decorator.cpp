@@ -4,16 +4,15 @@
 #include <chrono>
 #include "kasp_decorator.h"
 
-kasp::decorator::decorator(kasp::db_interface *db, const int get_timeout, const int db_timeout)
-    : m_timeout(get_timeout),
-      m_db(db),
+kasp::decorator::decorator(kasp::db_interface *db, const std::chrono::milliseconds db_timeout)
+    : m_db(db),
       m_timer(new kasp::timer()),
       m_thread_pool(new kasp::thread_pool(5))
 {
     std::cout << __FUNCTION__ << std::endl;
 
     m_thread_pool->run_task(
-                [this]()
+                [&, this]()
                 {
                     while(true)
                     {
@@ -24,7 +23,7 @@ kasp::decorator::decorator(kasp::db_interface *db, const int get_timeout, const 
                             auto is_search = m_cache.find(request->key, request->data);
                             if(is_search)
                             {
-                                std::string db_data = m_db->get(request->key, request->timeout);
+                                std::string db_data = m_db->get(request->key, db_timeout);
                                 if(db_data.empty())
                                 {
                                     m_db->put(request->key, request->data);
@@ -33,7 +32,7 @@ kasp::decorator::decorator(kasp::db_interface *db, const int get_timeout, const 
                             }
                             else
                             {
-                                std::string db_data = m_db->get(request->key, request->timeout);
+                                std::string db_data = m_db->get(request->key, db_timeout);
                                 if(!db_data.empty())
                                 {
                                     this->put(request->key, db_data);

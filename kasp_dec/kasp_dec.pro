@@ -12,8 +12,7 @@ SOURCES += \
         kasp_db_mock.cpp \
     kasp_thread_pool.cpp \
         main.cpp \
-    kasp_decorator.cpp \
-    kasp_event.cpp
+    kasp_decorator.cpp
 
 HEADERS += \
     base_cache.h \
@@ -21,6 +20,5 @@ HEADERS += \
     kasp_db_mock.h \
     kasp_sdk.h \
     kasp_decorator.h \
-    kasp_event.h \
     kasp_thread_pool.h \
     kasp_timer.h

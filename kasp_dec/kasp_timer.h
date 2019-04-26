@@ -22,7 +22,7 @@ public:
     }
 
     template<typename Function>
-    void set_timeout(Function function, int delay)
+    void set_timeout(Function function, std::chrono::milliseconds delay)
     {
         this->m_stop_timer = false;
         std::thread t(
@@ -31,7 +31,7 @@ public:
                         while(true)
                         {
                             if(this->m_stop_timer) return;
-                            std::this_thread::sleep_for(std::chrono::seconds(delay));
+                            std::this_thread::sleep_for(delay);
                             if(this->m_stop_timer) return;
                             function();
                         }
