@@ -1,3 +1,0 @@
-[submodule "object_threadsafe"]
-	path = object_threadsafe
-	url = https://github.com/AlexeyAB/object_threadsafe.git
