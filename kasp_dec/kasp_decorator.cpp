@@ -96,7 +96,6 @@ kasp::decorator::decorator(kasp::db_interface *db, const int get_timeout, const 
                     }
                 }
                 );
-    //m_thread_pool.
 
     m_timer->set_timeout(
                 [this]()
@@ -174,10 +173,6 @@ std::string kasp::decorator::get(const std::string &key, const int get_timeout)
 
 void kasp::decorator::put(const std::string &key, const std::string &data)
 {
-    //std::cout << __FUNCTION__ << ": key = " << key.c_str() << "\tdata = " << data.c_str() << std::endl;
-
-
-
     std::future<int> future = std::async(
                                                 std::launch::async,
                                                 [&,this]()
