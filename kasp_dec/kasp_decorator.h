@@ -7,6 +7,8 @@
 #include "kasp_event.h"
 #include "kasp_timer.h"
 #include "kasp_thread_pool.h"
+#include "base_queue.h"
+#include "base_cache.h"
 
 namespace kasp
 {
@@ -16,7 +18,7 @@ class decorator: public db_interface
 public:
     decorator(db_interface *db, const int get_timeout = 10, const int db_timeout = 60);
     virtual ~decorator();
-    virtual std::string get(const std::string& key, const int get_timeout = 10);
+    virtual std::string get(const std::string& key, const std::chrono::milliseconds get_timeout = std::chrono::milliseconds(10));
     virtual void put(const std::string& key, const std::string& data);
     virtual void remove(const std::string& key);
 private:
@@ -27,15 +29,8 @@ private:
 
     std::mutex m_request_mutex;
     std::condition_variable m_request_cv;
-    std::queue<std::shared_ptr<kasp::request_item>> m_request_queue;
-
-    std::mutex m_cache_mutex;
-    std::condition_variable m_cache_cv;
-    std::map<std::string, std::unique_ptr<kasp::records_event>> m_cache;
-
-    std::mutex m_get_mutex;
-    std::condition_variable m_get_cv;
-    std::queue<std::shared_ptr<kasp::request_item>> m_get_queue;
+    base::queue m_request_queue;
+    base::cache m_cache;
 };
 
 }
