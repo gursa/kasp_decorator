@@ -70,11 +70,28 @@ kasp::decorator::decorator(kasp::db_interface *db, const int get_timeout, const 
                         }
                         else if(request->m_type == kasp::request_type::req_put)
                         {
-
+                            auto temp_rec = std::unique_ptr<kasp::records_event>(new kasp::records_event());
+                            temp_rec->m_event = std::unique_ptr<kasp::event>(new kasp::event());
+                            temp_rec->m_record = std::unique_ptr<kasp::records>(new kasp::records());
+                            temp_rec->m_event->reset();
+                            temp_rec->m_record->key = request->m_rec.key;
+                            temp_rec->m_record->data = request->m_rec.data;
+                            temp_rec->m_event->signal();
+                            std::unique_lock<std::mutex> ul(m_cache_mutex);
+                            m_cache.insert(std::make_pair(request->m_rec.key, std::move(temp_rec)));
                         }
                         else
                         {
-
+                            m_db->remove(request->m_rec.key);
+                            std::unique_lock<std::mutex> ul(m_cache_mutex);
+                            if(m_cache_cv.wait_for(ul, std::chrono::seconds(request->m_timeout)) != std::cv_status::timeout)
+                            {
+                                auto search = m_cache.find(request->m_rec.key);
+                                if (search != m_cache.end())
+                                {
+                                    m_cache.erase(search);
+                                }
+                            }
                         }
                     }
                 }
@@ -106,7 +123,6 @@ kasp::decorator::decorator(kasp::db_interface *db, const int get_timeout, const 
 
 kasp::decorator::~decorator()
 {
-    //std::cout << __FUNCTION__ << std::endl;
     m_cache.clear();
 }
 
@@ -159,14 +175,7 @@ std::string kasp::decorator::get(const std::string &key, const int get_timeout)
 void kasp::decorator::put(const std::string &key, const std::string &data)
 {
     //std::cout << __FUNCTION__ << ": key = " << key.c_str() << "\tdata = " << data.c_str() << std::endl;
-    auto temp_rec = std::unique_ptr<kasp::records_event>(new kasp::records_event());
-    temp_rec->m_event = std::unique_ptr<kasp::event>(new kasp::event());
-    temp_rec->m_record = std::unique_ptr<kasp::records>(new kasp::records());
-    temp_rec->m_event->reset();
-    temp_rec->m_record->key = key;
-    temp_rec->m_record->data = data;
-    temp_rec->m_event->signal();
-    m_cache.insert(std::make_pair(key, std::move(temp_rec)));
+
 
 
     std::future<int> future = std::async(
@@ -186,9 +195,16 @@ void kasp::decorator::put(const std::string &key, const std::string &data)
 
 void kasp::decorator::remove(const std::string &key)
 {
-    //std::cout << __FUNCTION__ << ": key = " << key.c_str() << std::endl;
-    auto search = m_cache.find(key);
-    if (search != m_cache.end())
-        m_cache.erase(search);
-    m_db->remove(key);
+    std::future<int> future = std::async(
+                                                std::launch::async,
+                                                [&,this]()
+                                                {
+                                                    {
+                                                        std::lock_guard<std::mutex> lg(m_request_mutex);
+                                                        m_request_queue.push(std::make_shared<kasp::request_item>(key, "", kasp::request_type::req_remove, 0));
+                                                    }
+                                                    m_request_cv.notify_one();
+                                                    return 0;
+                                                });
+    future.get();
 }
