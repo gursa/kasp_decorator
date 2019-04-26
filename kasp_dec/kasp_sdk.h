@@ -6,42 +6,7 @@
 #include <mutex>
 #include "kasp_event.h"
 
-namespace base
-{
 
-struct message
-{
-    std::string m_data;
-    message(const std::string &data) : m_data(data) {}
-};
-
-class msg_queue
-{
-public:
-    void put(std::shared_ptr<base::message> msg)
-    {
-        std::lock_guard<std::mutex> lg(m_mutex);
-        m_queue.push(msg);
-    }
-    std::shared_ptr<base::message> pop()
-    {
-        std::lock_guard<std::mutex> lg(m_mutex);
-        auto result = m_queue.front();
-        m_queue.pop();
-        return result;
-    }
-
-    bool empty()
-    {
-        std::lock_guard<std::mutex> lg(m_mutex);
-        return m_queue.empty();
-    }
-private:
-    std::queue<std::shared_ptr<base::message>> m_queue;
-    std::mutex m_mutex;
-};
-
-}
 
 
 namespace kasp
