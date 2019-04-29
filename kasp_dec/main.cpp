@@ -1,6 +1,6 @@
-#include <iostream>
 #include <future>
 #include <queue>
+#include <boost/log/trivial.hpp>
 #include "kasp_sdk.h"
 #include "kasp_db_mock.h"
 #include "kasp_decorator.h"
@@ -24,7 +24,7 @@ void service(int count, char symbol)
     {
         std::string key(i, symbol);
         std::string data = m_db.get(key, std::chrono::milliseconds(300));
-        std::cout << "[" << key << "," << data << "]\n";
+        BOOST_LOG_TRIVIAL(info) << "[" << key << "," << data << "]\n";
     }
 }
 

@@ -1,3 +1,4 @@
+#include <boost/log/trivial.hpp>
 #include <utility>
 #include <future>
 #include <thread>
@@ -9,7 +10,7 @@ kasp::decorator::decorator(kasp::db_interface *db, const std::chrono::millisecon
       m_timer(new kasp::timer()),
       m_thread_pool(new kasp::thread_pool(5))
 {
-    std::cout << __FUNCTION__ << std::endl;
+    BOOST_LOG_TRIVIAL(debug) << __FUNCTION__ << std::endl;
 
     m_thread_pool->run_task(
                 [&, this]()
@@ -58,9 +59,9 @@ kasp::decorator::decorator(kasp::db_interface *db, const std::chrono::millisecon
     m_timer->set_timeout(
                 [this]()
                 {
-                    std::cout << "Copy cache to database ..." << std::endl;
+                    BOOST_LOG_TRIVIAL(info) << "Copy cache to database ..." << std::endl;
                     int rec_count = m_cache.copy(m_db.get());
-                    std::cout << "Copy is success! Saved " << rec_count << " records" << std::endl;
+                    BOOST_LOG_TRIVIAL(info) << "Copy is success! Saved " << rec_count << " records" << std::endl;
                 },
                 db_timeout);
 }

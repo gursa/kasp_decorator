@@ -1,4 +1,4 @@
-#include <iostream>
+#include <boost/log/trivial.hpp>
 #include "base_cache.h"
 
 
@@ -25,7 +25,7 @@ bool base::cache::find(const std::string &key, std::string &value)
     }
     catch(std::exception &ex)
     {
-        std::cerr << "[Exception] " << ex.what() << std::endl;
+        BOOST_LOG_TRIVIAL(error) << "[Exception] " << ex.what() << std::endl;
     }
     return false;
 }
@@ -46,14 +46,15 @@ void base::cache::clear()
 
 int base::cache::copy(kasp::db_interface *db)
 {
-    try {
+    try
+    {
         std::unique_lock<std::mutex> ul(m_mutex);
         int rec_count = 0;
         for(auto const& item: m_cache)
         {
             std::string db_data = db->get(item.first, std::chrono::milliseconds(1000));
             std::string data = item.second;
-            std::cout << __FUNCTION__ << " data = " << data.c_str() << std::endl;
+            BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << " data = " << data.c_str() << std::endl;
             if(data.compare(db_data))
             {
                 db->put(item.first, data);
@@ -61,8 +62,10 @@ int base::cache::copy(kasp::db_interface *db)
             }
         }
         return rec_count;
-    } catch (std::exception &ex) {
-        std::cerr << "[Exception] " << ex.what() << std::endl;
+    }
+    catch (std::exception &ex)
+    {
+        BOOST_LOG_TRIVIAL(error) << "[Exception] " << ex.what() << std::endl;
     }
     return 0;
 }

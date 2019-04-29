@@ -3,8 +3,8 @@ CONFIG += console c++11
 CONFIG -= app_bundle
 CONFIG -= qt
 
-INCLUDEPATH += "C:\boost\boost_1_70_0"
-LIBS += "-LC:\boost\boost_1_70_0\lib32-msvc-14.1"
+INCLUDEPATH += "C:\boost\boost_1_69_0"
+LIBS += "-LC:\boost\boost_1_69_0\lib32-msvc-14.1"
 
 SOURCES += \
     base_cache.cpp \

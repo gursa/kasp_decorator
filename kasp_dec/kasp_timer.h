@@ -1,9 +1,9 @@
 #pragma once
 
+#include <boost/log/trivial.hpp>
 #include <chrono>
 #include <functional>
 #include <thread>
-#include <iostream>
 
 namespace kasp
 {
@@ -13,11 +13,11 @@ class timer
 public:
     timer() : m_stop_timer(false)
     {
-        std::cout << __FUNCTION__ << std::endl;
+        BOOST_LOG_TRIVIAL(debug) << __FUNCTION__ << std::endl;
     }
     ~timer()
     {
-        std::cout << __FUNCTION__ << std::endl;
+        BOOST_LOG_TRIVIAL(debug) << __FUNCTION__ << std::endl;
         stop();
     }
 
@@ -40,7 +40,7 @@ public:
     }
     void stop()
     {
-        std::cout << __FUNCTION__ << std::endl;
+        BOOST_LOG_TRIVIAL(debug) << __FUNCTION__ << std::endl;
         this->m_stop_timer = true;
     }
 private:

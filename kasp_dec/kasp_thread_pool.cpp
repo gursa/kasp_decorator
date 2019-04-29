@@ -1,4 +1,4 @@
-#include <iostream>
+#include <boost/log/trivial.hpp>
 #include "kasp_thread_pool.h"
 
 kasp::thread_pool::thread_pool(std::size_t pool_size)
@@ -21,7 +21,7 @@ kasp::thread_pool::~thread_pool()
     }
     catch (const std::exception &ex)
     {
-        std::cerr << "[Exception] " << __FUNCTION__ << ex.what() << std::endl;
+        BOOST_LOG_TRIVIAL(error) << "[Exception] " << __FUNCTION__ << ex.what() << std::endl;
     }
 }
 
@@ -33,7 +33,7 @@ void kasp::thread_pool::wrap_task(boost::function<void()> task)
     }
     catch (const std::exception &ex)
     {
-          std::cerr << "[Exception] " << __FUNCTION__ << ex.what() << std::endl;
+          BOOST_LOG_TRIVIAL(error) << "[Exception] " << __FUNCTION__ << ex.what() << std::endl;
     }
 
     boost::unique_lock<boost::mutex> lock(m_mutex);

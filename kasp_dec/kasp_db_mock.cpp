@@ -1,5 +1,5 @@
 #include <algorithm>
-#include <iostream>
+#include <boost/log/trivial.hpp>
 #include "kasp_db_mock.h"
 
 kasp::db_mock::db_mock()
@@ -21,7 +21,7 @@ std::string kasp::db_mock::get(const std::string &key, const std::chrono::millis
     }
     catch(std::exception &ex)
     {
-        std::cerr << "[Exception] " << ex.what() << std::endl;
+        BOOST_LOG_TRIVIAL(error) << "[Exception] " << ex.what() << std::endl;
     }
 }
 
@@ -32,7 +32,7 @@ void kasp::db_mock::put(const std::string &key, const std::string &data)
     }
     catch(std::exception &ex)
     {
-        std::cerr << "[Exception] " << ex.what() << std::endl;
+        BOOST_LOG_TRIVIAL(error) << "[Exception] " << ex.what() << std::endl;
     }
 
 }
@@ -44,7 +44,7 @@ void kasp::db_mock::remove(const std::string &key)
     }
     catch(std::exception &ex)
     {
-        std::cerr << "[Exception] " << ex.what() << std::endl;
+        BOOST_LOG_TRIVIAL(error) << "[Exception] " << ex.what() << std::endl;
     }
 
 }
