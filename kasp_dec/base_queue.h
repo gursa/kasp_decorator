@@ -4,7 +4,6 @@
 #include <queue>
 #include <mutex>
 #include <condition_variable>
-#include <thread>
 #include <string>
 
 namespace base
