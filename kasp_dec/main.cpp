@@ -5,16 +5,23 @@
 #include "kasp_db_mock.h"
 #include "kasp_decorator.h"
 
-kasp::decorator m_db(new kasp::db_mock(), std::chrono::milliseconds(2000));
+boost::asio::io_context io;
+kasp::decorator m_db(new kasp::db_mock(),io, std::chrono::milliseconds(500));
 
 void client(int count, char symbol)
 {
-    for (int i = 1; i < count; ++i)
+    for (int i = 1; i <= count; ++i)
     {
         std::string key(i, symbol);
         std::string data(i, symbol+1);
-
         m_db.put(key, data);
+        switch (i) {
+        case 100:
+        case 200:
+        case 300:
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            break;
+        }
     }
 }
 
@@ -31,18 +38,19 @@ void service(int count, char symbol)
 int main(int argc, char* argv[])
 {
 
-    auto p1 = std::async(std::launch::async, &client, 5, 'A');
-    auto p2 = std::async(std::launch::async, &client, 5, 'C');
-    auto p3 = std::async(std::launch::async, &client, 5, 'E');
-    auto p4 = std::async(std::launch::async, &client, 5, 'J');
-    auto p5 = std::async(std::launch::async, &client, 5, 'K');
-    auto p6 = std::async(std::launch::async, &client, 5, 'M');
+    auto p1 = std::async(std::launch::async, &client, 300, 'A');
+    auto p2 = std::async(std::launch::async, &client, 300, 'C');
+    auto p3 = std::async(std::launch::async, &client, 300, 'E');
+    auto p4 = std::async(std::launch::async, &client, 300, 'J');
+    auto p5 = std::async(std::launch::async, &client, 300, 'K');
+    auto p6 = std::async(std::launch::async, &client, 300, 'M');
 
 
-    auto c1 = std::async(std::launch::async, &service, 5, 'A');
-    auto c2 = std::async(std::launch::async, &service, 5, 'C');
+    auto c1 = std::async(std::launch::async, &service, 300, 'A');
+    auto c2 = std::async(std::launch::async, &service, 300, 'C');
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+    io.run();
+
     p1.get();
     p2.get();
     p3.get();

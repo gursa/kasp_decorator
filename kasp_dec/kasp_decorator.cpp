@@ -5,9 +5,9 @@
 #include <chrono>
 #include "kasp_decorator.h"
 
-kasp::decorator::decorator(kasp::db_interface *db, const std::chrono::milliseconds db_timeout)
+kasp::decorator::decorator(kasp::db_interface *db, boost::asio::io_context &io, const std::chrono::milliseconds db_timeout)
     : m_db(db),
-      m_timer(new kasp::timer()),
+      m_timer(io, db_timeout),
       m_thread_pool(new kasp::thread_pool(5))
 {
     BOOST_LOG_TRIVIAL(debug) << __FUNCTION__ << std::endl;
@@ -56,14 +56,7 @@ kasp::decorator::decorator(kasp::db_interface *db, const std::chrono::millisecon
                 }
                 );
 
-    m_timer->set_timeout(
-                [this]()
-                {
-                    BOOST_LOG_TRIVIAL(info) << "Copy cache to database ...";
-                    int rec_count = m_cache.copy(m_db.get());
-                    BOOST_LOG_TRIVIAL(info) << "Copy is success! Saved " << rec_count << " records" << std::endl;
-                },
-                db_timeout);
+    m_timer.async_wait(boost::bind(&kasp::decorator::copy_to_db, this, db_timeout));
 }
 
 kasp::decorator::~decorator()
@@ -84,4 +77,13 @@ void kasp::decorator::put(const std::string &key, const std::string &data)
 void kasp::decorator::remove(const std::string &key)
 {
     m_request_queue.call(key, "", base::request_type::req_remove, std::chrono::milliseconds(0xFFFFFFFF));
+}
+
+void kasp::decorator::copy_to_db(const std::chrono::milliseconds db_timeout)
+{
+    BOOST_LOG_TRIVIAL(info) << "Copy cache to database ...";
+    int rec_count = m_cache.copy(m_db.get());
+    BOOST_LOG_TRIVIAL(info) << "Copy is success! Saved " << rec_count << " records" << std::endl;
+    m_timer.expires_at(m_timer.expiry() + db_timeout);
+    m_timer.async_wait(boost::bind(&kasp::decorator::copy_to_db, this, db_timeout));
 }
