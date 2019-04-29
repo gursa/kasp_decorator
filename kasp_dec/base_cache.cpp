@@ -54,11 +54,11 @@ int base::cache::copy(kasp::db_interface *db)
         {
             std::string db_data = db->get(item.first, std::chrono::milliseconds(1000));
             std::string data = item.second;
-            BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << " data = " << data.c_str() << std::endl;
             if(data.compare(db_data))
             {
                 db->put(item.first, data);
                 ++rec_count;
+                BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << " data = " << data.c_str() << std::endl;
             }
         }
         return rec_count;
