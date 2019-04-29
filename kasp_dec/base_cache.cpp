@@ -58,7 +58,7 @@ int base::cache::copy(kasp::db_interface *db)
             {
                 db->put(item.first, data);
                 ++rec_count;
-                BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << " data = " << data.c_str();
+                BOOST_LOG_TRIVIAL(info) << "\tcopy data = " << data.c_str();
             }
         }
         return rec_count;

@@ -29,18 +29,22 @@ kasp::decorator::decorator(kasp::db_interface *db, boost::asio::io_context &io, 
                                 {
                                     m_db->put(request->key, request->data);
                                 }
-                                m_request_queue.done(request);
                             }
                             else
                             {
                                 std::string db_data = m_db->get(request->key, db_timeout);
+
                                 if(!db_data.empty())
                                 {
                                     this->put(request->key, db_data);
-                                    m_request_queue.done(request);
                                 }
-                            }
+                                else
+                                {
+                                    BOOST_LOG_TRIVIAL(warning) << "Could not find key '" << request->key << "' in database and cache";
+                                }
 
+                            }
+                            m_request_queue.done(request);
                         }
                         else if(request->type == base::request_type::req_put)
                         {
@@ -66,7 +70,7 @@ kasp::decorator::~decorator()
 
 std::string kasp::decorator::get(const std::string &key, const std::chrono::milliseconds get_timeout)
 {
-    return m_request_queue.call(key, "", base::request_type::req_get, std::chrono::milliseconds(get_timeout));
+    return m_request_queue.call(key, "", base::request_type::req_get, std::chrono::milliseconds(get_timeout));;
 }
 
 void kasp::decorator::put(const std::string &key, const std::string &data)
@@ -83,7 +87,7 @@ void kasp::decorator::copy_to_db(const std::chrono::milliseconds db_timeout)
 {
     BOOST_LOG_TRIVIAL(info) << "Copy cache to database ...";
     int rec_count = m_cache.copy(m_db.get());
-    BOOST_LOG_TRIVIAL(info) << "Copy is success! Saved " << rec_count << " records" << std::endl;
+    BOOST_LOG_TRIVIAL(info) << "Copy is success! Saved " << rec_count << " records";
     m_timer.expires_at(m_timer.expiry() + db_timeout);
     m_timer.async_wait(boost::bind(&kasp::decorator::copy_to_db, this, db_timeout));
 }

@@ -24,26 +24,28 @@ int main(int argc, char* argv[])
         }
     };
 
-    auto service = [](kasp::decorator &db, std::size_t count, char symbol)
+    auto service = [](kasp::decorator &db, std::size_t count, char symbol, std::chrono::milliseconds timeout)
     {
         for (std::size_t i = 1; i < count; ++i)
         {
             std::string key(i, symbol);
-            std::string data = db.get(key, std::chrono::milliseconds(300));
-            BOOST_LOG_TRIVIAL(info) << "[" << key << "," << data << "]\n";
+            std::string data = db.get(key, timeout);
+            BOOST_LOG_TRIVIAL(info) << "db.get = [" << key << "," << data << "]";
         }
     };
 
     std::vector<std::future<void>> clients_services;
     for (char i = 'A'; i < 'N'; i += 2)
     {
-        clients_services.push_back(std::async(std::launch::async, client, std::ref(m_db), 300, i));
+        clients_services.push_back(std::async(std::launch::async, client, std::ref(m_db), 10, i));
     }
 
     for (char i = 'A'; i < 'D'; i += 2)
     {
-        clients_services.push_back(std::async(std::launch::async, service, std::ref(m_db), 300, i));
+        clients_services.push_back(std::async(std::launch::async, service, std::ref(m_db), 10, i, std::chrono::milliseconds(300)));
     }
+
+    clients_services.push_back(std::async(std::launch::async, service, std::ref(m_db), 10, 'Y', std::chrono::milliseconds(10)));
 
     io.run();
     return 0;
