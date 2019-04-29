@@ -5,8 +5,6 @@
 #include "kasp_db_mock.h"
 #include "kasp_decorator.h"
 
-
-
 void client(kasp::decorator *db, std::size_t count, char symbol)
 {
     for (std::size_t i = 1; i <= count; ++i)

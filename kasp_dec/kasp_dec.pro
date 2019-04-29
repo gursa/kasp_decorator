@@ -20,5 +20,4 @@ HEADERS += \
     kasp_db_mock.h \
     kasp_sdk.h \
     kasp_decorator.h \
-    kasp_thread_pool.h \
-    kasp_timer.h
+    kasp_thread_pool.h
