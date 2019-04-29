@@ -59,7 +59,7 @@ kasp::decorator::decorator(kasp::db_interface *db, const std::chrono::millisecon
     m_timer->set_timeout(
                 [this]()
                 {
-                    BOOST_LOG_TRIVIAL(info) << "Copy cache to database ..." << std::endl;
+                    BOOST_LOG_TRIVIAL(info) << "Copy cache to database ...";
                     int rec_count = m_cache.copy(m_db.get());
                     BOOST_LOG_TRIVIAL(info) << "Copy is success! Saved " << rec_count << " records" << std::endl;
                 },
