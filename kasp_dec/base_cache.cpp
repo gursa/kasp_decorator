@@ -34,7 +34,7 @@ void base::cache::remove(const std::string &key)
 {
     std::lock_guard<std::mutex> lg(m_mutex);
     auto it = m_cache.find(key);
-    if(it == m_cache.end())
+    if(it != m_cache.end())
         m_cache.erase(it);
 }
 
